@@ -90,7 +90,7 @@ function Videos(props: { channelName: string; AppID: string }) {
           className="w-full h-full"
         />
         {remoteUsers.map((user) => (
-          <RemoteUser user={user} />
+          <RemoteUser user={user} key={user?.uid} />
         ))}
       </div>
     </div>
