@@ -1,5 +1,5 @@
 "use client";
-import {
+import AgoraRTC, {
   AgoraRTCProvider,
   LocalVideoTrack,
   RemoteUser,
@@ -11,11 +11,10 @@ import {
   useRemoteAudioTracks,
   useRemoteUsers,
 } from "agora-rtc-react";
-import AgoraRTC from "agora-rtc-sdk-ng";
 
-function Call(props: { appId: string; channelName: string }) {
+function CallAgora(props: { appId: string; channelName: string }) {
   const client = useRTCClient(
-    AgoraRTC.createClient({ mode: "rtc", codec: "vp8" }) as any
+    AgoraRTC.createClient({ codec: "vp8", mode: "rtc" })
   );
 
   return (
@@ -39,6 +38,7 @@ function Videos(props: { channelName: string; AppID: string }) {
     useLocalMicrophoneTrack();
   const { isLoading: isLoadingCam, localCameraTrack } = useLocalCameraTrack();
   const remoteUsers = useRemoteUsers();
+  console.log("🚀 ~ Videos ~ remoteUsers:", remoteUsers);
   const { audioTracks } = useRemoteAudioTracks(remoteUsers);
 
   usePublish([localMicrophoneTrack, localCameraTrack]);
@@ -90,11 +90,11 @@ function Videos(props: { channelName: string; AppID: string }) {
           className="w-full h-full"
         />
         {remoteUsers.map((user) => (
-          <RemoteUser user={user} key={user?.uid} />
+          <RemoteUser user={user} key={user.uid} />
         ))}
       </div>
     </div>
   );
 }
 
-export default Call;
+export default CallAgora;
