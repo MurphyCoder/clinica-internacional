@@ -27,6 +27,52 @@ function CallAgora(props: { appId: string; channelName: string }) {
         >
           End Call
         </a>
+        {/* Botones para activar desactivar microfono, camara y compartir pantalla */}
+        <div className="flex justify-center z-40">
+          <button
+            className="px-5 py-3 text-base font-medium text-center text-white bg-blue-400 rounded-lg hover:bg-blue-500 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 w-40"
+            onClick={async () => {
+              const screenTrack = await AgoraRTC.createScreenVideoTrack(
+                {
+                  encoderConfig: "1080p_1",
+                },
+                "auto"
+              );
+              client.localTracks.forEach((track) => {
+                if (track.trackMediaType === "video") {
+                  track.setEnabled(false);
+                }
+              });
+              client.publish(screenTrack);
+            }}
+          >
+            Share Screen
+          </button>
+          <button
+            className="px-5 py-3 text-base font-medium text-center text-white bg-green-400 rounded-lg hover:bg-green-500 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 w-40"
+            onClick={() => {
+              client.localTracks.forEach((track) => {
+                if (track.trackMediaType === "audio") {
+                  track.setEnabled(!track.muted);
+                }
+              });
+            }}
+          >
+            Mute
+          </button>
+          <button
+            className="px-5 py-3 text-base font-medium text-center text-white bg-green-400 rounded-lg hover:bg-green-500 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 w-40"
+            onClick={() => {
+              client.localTracks.forEach((track) => {
+                if (track.trackMediaType === "video") {
+                  track.setEnabled(!track.isPlaying);
+                }
+              });
+            }}
+          >
+            Camera
+          </button>
+        </div>
       </div>
     </AgoraRTCProvider>
   );
@@ -40,6 +86,7 @@ function Videos(props: { channelName: string; AppID: string }) {
   const remoteUsers = useRemoteUsers();
   console.log("🚀 ~ Videos ~ remoteUsers:", remoteUsers);
   const { audioTracks } = useRemoteAudioTracks(remoteUsers);
+  console.log("🚀 ~ Videos ~ audioTracks:", audioTracks);
 
   usePublish([localMicrophoneTrack, localCameraTrack]);
   useJoin({
@@ -90,7 +137,9 @@ function Videos(props: { channelName: string; AppID: string }) {
           className="w-full h-full"
         />
         {remoteUsers.map((user) => (
-          <RemoteUser user={user} key={user.uid} />
+          <div key={user.uid}>
+            <RemoteUser user={user} />
+          </div>
         ))}
       </div>
     </div>
