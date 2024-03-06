@@ -1,8 +1,9 @@
+import { Container } from '@/components/shared/Container';
 import Image from 'next/image';
 
 export default function Home() {
   return (
-    <main className='flex min-h-screen flex-col items-center justify-between p-24'>
+    <main>
       <div className='flex flex-col items-center'>
         <Image
           src='/assets/logo.png'
@@ -19,29 +20,29 @@ export default function Home() {
       </div>
 
       {/* inicio de sesion */}
-
-      <div className='flex flex-col items-center'>
-        <h2 className='text-2xl font-bold mt-2'>Iniciar Sesión</h2>
-        <form className='flex flex-col mt-4'>
-          <input
-            type='text'
-            placeholder='Correo Electrónico'
-            className='p-2 border border-gray-300 rounded-lg mb-4'
-          />
-          <input
-            type='password'
-            placeholder='Contraseña'
-            className='p-2 border border-gray-300 rounded-lg mb-4'
-          />
-          <button
-            type='submit'
-            className='bg-blue-500 text-white p-2 rounded-lg'
-          >
-            Iniciar Sesión
-          </button>
-        </form>
-      </div>
-
+      <Container>
+        <div className='flex flex-col items-center '>
+          <h2 className='text-2xl font-bold mt-2'>Iniciar Sesión</h2>
+          <form className='flex flex-col mt-4 max-w-4xl'>
+            <input
+              type='text'
+              placeholder='Correo Electrónico'
+              className='p-2 border border-gray-300 rounded-lg mb-4 w-full'
+            />
+            <input
+              type='password'
+              placeholder='Contraseña'
+              className='p-2 border border-gray-300 rounded-lg mb-4'
+            />
+            <button
+              type='submit'
+              className='bg-blue-500 text-white p-2 rounded-lg'
+            >
+              Iniciar Sesión
+            </button>
+          </form>
+        </div>
+      </Container>
       <footer className='text-center text-gray-400 text-sm'>
         <p>
           <a
