@@ -5,6 +5,7 @@ import AgoraRTC, {
   useTrackEvent,
 } from "agora-rtc-react";
 import { useEffect, useRef } from "react";
+import { Container } from "../shared/Container";
 
 export const ShareScreenComponent: React.FC<{
   setScreenSharing: React.Dispatch<React.SetStateAction<boolean>>;
@@ -13,13 +14,13 @@ export const ShareScreenComponent: React.FC<{
   isSharingEnabled: boolean;
 }> = ({ setScreenSharing, channelName, AppID, isSharingEnabled }) => {
   const screenShareClient = useRef(
-    AgoraRTC.createClient({ codec: "vp8", mode: "rtc" })
+    AgoraRTC.createClient({ codec: "vp8", mode: "rtc" }),
   );
   const { screenTrack, isLoading, error } = useLocalScreenTrack(
     true,
     {},
     "disable",
-    screenShareClient.current
+    screenShareClient.current,
   );
 
   useJoin(
@@ -30,7 +31,7 @@ export const ShareScreenComponent: React.FC<{
       uid: 0, // This is the user id, set to 0 to let Agora assign one
     },
     true,
-    screenShareClient.current
+    screenShareClient.current,
   );
   useTrackEvent(screenTrack, "track-ended", () => {
     setScreenSharing(false);
@@ -42,7 +43,11 @@ export const ShareScreenComponent: React.FC<{
   usePublish([screenTrack], screenTrack !== null, screenShareClient.current);
 
   if (isLoading) {
-    return <p>Compartiendo pantall...</p>;
+    return (
+      <Container>
+        <p>Compartiendo pantalla...</p>
+      </Container>
+    );
   }
 
   if (error) {
@@ -51,12 +56,12 @@ export const ShareScreenComponent: React.FC<{
 
   if (isSharingEnabled) {
     return (
-      <div className="fixed z-10 bottom-0 left-0 right-0 flex justify-center pb-4">
+      <div className="fixed bottom-0 left-0 right-0 z-10 flex justify-center pb-4">
         <button
           onClick={() => {
             setScreenSharing(false);
           }}
-          className="px-5 py-3 text-base font-medium text-center text-white bg-red-400 rounded-lg hover:bg-red-500 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 w-40"
+          className="w-40 rounded-lg bg-red-400 px-5 py-3 text-center text-base font-medium text-white hover:bg-red-500 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900"
         >
           Dejar de compartir
         </button>

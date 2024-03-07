@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import AgoraRTC, {
   AgoraRTCProvider,
   LocalVideoTrack,
@@ -7,12 +7,10 @@ import AgoraRTC, {
   useJoin,
   useLocalCameraTrack,
   useLocalMicrophoneTrack,
-  useLocalScreenTrack,
   usePublish,
   useRTCClient,
   useRemoteAudioTracks,
   useRemoteUsers,
-  useTrackEvent,
 } from "agora-rtc-react";
 
 import {
@@ -29,6 +27,7 @@ import { Container } from "../shared/Container";
 import { ShareScreenComponent } from "./SharedScreen";
 import Link from "next/link";
 import Image from "next/image";
+import LoadingScreen from "../shared/LoadingScreen";
 
 function CallAgora(props: { appId: string; channelName: string }) {
   const client = useRTCClient(
@@ -81,7 +80,9 @@ function Videos(props: { channelName: string; AppID: string }) {
   const deviceLoading = isLoadingMic || isLoadingCam;
   if (deviceLoading)
     return (
-      <div className="flex flex-col items-center pt-40">Loading devices...</div>
+      <div className="flex h-screen w-full flex-col items-center  pb-10">
+        <LoadingScreen />
+      </div>
     );
 
   remoteUsers.length > 0 && console.log("remoteUsers", remoteUsers);
@@ -192,12 +193,12 @@ function Videos(props: { channelName: string; AppID: string }) {
                 <LocalVideoTrack track={localCameraTrack} play={true} />
               </div>
             ) : (
-              <div className="container flex h-full w-full items-center justify-center rounded-xl bg-gray-800 bg-opacity-50">
+              <div className="container flex h-full w-full items-center justify-center rounded-xl bg-gray-800 ">
                 <MdOutlinePersonOff className="text-4xl text-white" />
               </div>
             )}
 
-            <div className="absolute bottom-0 right-0  ">
+            <div className="absolute bottom-0 right-0 ">
               <div className="mb-4 mr-2 flex items-center justify-center rounded-full bg-gray-800 bg-opacity-50 px-2 py-1">
                 <div>
                   {isMuteAudio ? (

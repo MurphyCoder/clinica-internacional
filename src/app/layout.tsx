@@ -1,13 +1,13 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import './globals.css';
-import { Providers } from '@/redux/Provider';
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { Providers } from "@/redux/Provider";
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Clinica Internacional - Prueba de Frontend',
-  description: 'Prueba de Frontend para Clinica Internacional',
+  title: "Clinica Internacional - Prueba de Frontend",
+  description: "Prueba de Frontend para Clinica Internacional",
 };
 
 export default function RootLayout({
@@ -15,8 +15,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  if (typeof window !== "undefined") {
+    // client-side-only code
+  }
+
   return (
-    <html lang='es'>
+    <html lang="es">
       <body className={inter.className}>
         <Providers>{children}</Providers>
       </body>
