@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import AgoraRTC, {
   AgoraRTCProvider,
   LocalVideoTrack,
@@ -7,18 +7,20 @@ import AgoraRTC, {
   useJoin,
   useLocalCameraTrack,
   useLocalMicrophoneTrack,
+  useLocalScreenTrack,
   usePublish,
   useRTCClient,
   useRemoteAudioTracks,
   useRemoteUsers,
+  useTrackEvent,
 } from "agora-rtc-react";
 
 function CallAgora(props: { appId: string; channelName: string }) {
   const client = useRTCClient(
     AgoraRTC.createClient({ codec: "vp8", mode: "rtc" })
   );
-  const devices = AgoraRTC.getDevices();
-  console.log("devices", devices);
+  // const devices = AgoraRTC.getDevices();
+  // console.log("devices", devices);
 
   return (
     <AgoraRTCProvider client={client}>
@@ -35,6 +37,44 @@ function CallAgora(props: { appId: string; channelName: string }) {
   );
 }
 
+const ShareScreenComponent: React.FC<{
+  setScreenSharing: React.Dispatch<React.SetStateAction<boolean>>;
+}> = ({ setScreenSharing }) => {
+  const screenShareClient = useRef(
+    AgoraRTC.createClient({ codec: "vp8", mode: "rtc" })
+  );
+  const { screenTrack, isLoading, error } = useLocalScreenTrack(
+    true,
+    {},
+    "disable",
+    screenShareClient.current
+  );
+
+  useJoin(
+    {
+      appid: "8d0e6c0588194991af086560049f5bea",
+      channel: "miachisidiot",
+      token: null,
+      uid: 0,
+    },
+    true,
+    screenShareClient.current
+  );
+  useTrackEvent(screenTrack, "track-ended", () => {
+    setScreenSharing(false);
+  });
+  useEffect(() => {
+    if (error) setScreenSharing(false);
+  }, [error, setScreenSharing]);
+
+  usePublish([screenTrack], screenTrack !== null, screenShareClient.current);
+
+  if (isLoading) {
+    return <p>Sharing screen...</p>;
+  }
+  return <></>;
+};
+
 function Videos(props: { channelName: string; AppID: string }) {
   const { AppID, channelName } = props;
   const { isLoading: isLoadingMic, localMicrophoneTrack } =
@@ -44,7 +84,11 @@ function Videos(props: { channelName: string; AppID: string }) {
   const { audioTracks } = useRemoteAudioTracks(remoteUsers);
   const [isMuteVideo, setMuteVideo] = useState(false);
   const [isMuteAudio, setMuteAudio] = useState(false);
+  const [isSharingEnabled, setScreenSharing] = useState(false);
 
+  const handleToggleScreenSharing = () => {
+    setScreenSharing((previous) => !previous);
+  };
   usePublish([localMicrophoneTrack, localCameraTrack]);
   useJoin({
     appid: AppID,
@@ -118,6 +162,14 @@ function Videos(props: { channelName: string; AppID: string }) {
         >
           {isMuteAudio ? "Unmute Audio" : "Mute Audio"}
         </button>
+
+        <button onClick={handleToggleScreenSharing}>
+          {isSharingEnabled ? "Stop Sharing" : "Start Sharing"}
+        </button>
+
+        {isSharingEnabled && (
+          <ShareScreenComponent setScreenSharing={setScreenSharing} />
+        )}
 
         {remoteUsers.map((user) => (
           <RemoteUser user={user} />
