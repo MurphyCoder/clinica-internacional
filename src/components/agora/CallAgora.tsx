@@ -17,6 +17,8 @@ import AgoraRTC, {
 
 import { CiMicrophoneOff, CiMicrophoneOn } from "react-icons/ci";
 import { MdScreenShare, MdStopScreenShare } from "react-icons/md";
+import { ShareScreenComponent } from "./SharedScreen";
+import { Container } from "../shared/Container";
 
 function CallAgora(props: { appId: string; channelName: string }) {
   const client = useRTCClient(
@@ -29,54 +31,16 @@ function CallAgora(props: { appId: string; channelName: string }) {
     <AgoraRTCProvider client={client}>
       <Videos channelName={props.channelName} AppID={props.appId} />
       <div className="fixed z-10 bottom-0 left-0 right-0 flex justify-center pb-4">
-        <a
+        {/* <a
           className="px-5 py-3 text-base font-medium text-center text-white bg-red-400 rounded-lg hover:bg-red-500 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 w-40"
           href="/"
         >
           End Call
-        </a>
+        </a> */}
       </div>
     </AgoraRTCProvider>
   );
 }
-
-const ShareScreenComponent: React.FC<{
-  setScreenSharing: React.Dispatch<React.SetStateAction<boolean>>;
-}> = ({ setScreenSharing }) => {
-  const screenShareClient = useRef(
-    AgoraRTC.createClient({ codec: "vp8", mode: "rtc" })
-  );
-  const { screenTrack, isLoading, error } = useLocalScreenTrack(
-    true,
-    {},
-    "disable",
-    screenShareClient.current
-  );
-
-  useJoin(
-    {
-      appid: "8d0e6c0588194991af086560049f5bea",
-      channel: "miachis",
-      token: null,
-      uid: 0,
-    },
-    true,
-    screenShareClient.current
-  );
-  useTrackEvent(screenTrack, "track-ended", () => {
-    setScreenSharing(false);
-  });
-  useEffect(() => {
-    if (error) setScreenSharing(false);
-  }, [error, setScreenSharing]);
-
-  usePublish([screenTrack], screenTrack !== null, screenShareClient.current);
-
-  if (isLoading) {
-    return <p>Sharing screen...</p>;
-  }
-  return <></>;
-};
 
 function Videos(props: { channelName: string; AppID: string }) {
   const { AppID, channelName } = props;
@@ -148,52 +112,75 @@ function Videos(props: { channelName: string; AppID: string }) {
   };
 
   return (
-    <div className="flex flex-col justify-between w-full h-screen p-1">
+    <div className="">
       <div
-        className={`grid grid-cols-${numCols} grid-rows-${numRows} gap-1 flex-1`}
+      // className={`grid grid-cols-${numCols} grid-rows-${numRows} gap-1 flex-1`}
       >
-        <LocalVideoTrack
-          track={localCameraTrack}
-          play={true}
-          className="w-full h-full"
-        />
-        {/* Desactivar y Activar  video
-         */}
-        <button onClick={toggleMuteVideo}>
-          {isMuteVideo ? "Unmute Video" : "Mute Video"}
-        </button>
+        <div className="fixed z-10 bottom-0 left-0 right-0 flex justify-center pb-4">
+          <a
+            className="px-5 py-3 text-base font-medium text-center text-white bg-red-400 rounded-lg hover:bg-red-500 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 w-40"
+            href="/"
+          >
+            End Call
+          </a>
 
-        {/* 
-          Desactivar y Activar audio      
-        */}
-        <button
-          onClick={toggleMuteAudio}
-          className="px-5 py-3 text-base font-medium text-center text-white bg-red-400 rounded-lg hover:bg-red-500 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 w-40"
-        >
-          {isMuteAudio ? (
-            <CiMicrophoneOff className="w-12 h-12 text-sm" />
-          ) : (
-            <CiMicrophoneOn className="w-12 h-12 text-sm" />
-          )}
-          {isMuteAudio ? "Unmute Audio" : "Mute Audio"}
-        </button>
+          <button
+            onClick={toggleMuteVideo}
+            className="w-20 h-20 rounded-full bg-red-400 hover:bg-red-500 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900"
+          >
+            {isMuteVideo ? "Unmute Video" : "Mute Video"}
+          </button>
 
-        <button onClick={handleToggleScreenSharing}>
-          {isSharingEnabled ? (
-            <MdStopScreenShare className="w-12 h-12 text-sm" />
-          ) : (
-            <MdScreenShare className="w-12 h-12 text-sm" />
-          )}
-          {isSharingEnabled ? "Stop Sharing" : "Start Sharing"}
-        </button>
+          <button
+            onClick={toggleMuteAudio}
+            className="px-5 py-3 text-base font-medium text-center text-white bg-red-400 rounded-lg hover:bg-red-500 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 w-40"
+          >
+            {isMuteAudio ? (
+              <CiMicrophoneOff className="w-12 h-12 text-sm" />
+            ) : (
+              <CiMicrophoneOn className="w-12 h-12 text-sm" />
+            )}
+            {isMuteAudio ? "Unmute Audio" : "Mute Audio"}
+          </button>
+
+          <button onClick={handleToggleScreenSharing}>
+            {isSharingEnabled ? (
+              <MdStopScreenShare className="w-12 h-12 text-sm" />
+            ) : (
+              <MdScreenShare className="w-12 h-12 text-sm" />
+            )}
+            {isSharingEnabled ? "Stop Sharing" : "Start Sharing"}
+          </button>
+        </div>
 
         {isSharingEnabled && (
-          <ShareScreenComponent setScreenSharing={setScreenSharing} />
+          <ShareScreenComponent
+            setScreenSharing={setScreenSharing}
+            channelName={channelName}
+            AppID={AppID}
+          />
         )}
 
-        {remoteUsers.map((user) => (
+        {/*  Videos de los usuarios remotos */}
+        {/* {remoteUsers.map((user) => (
           <RemoteUser user={user} key={user.uid} />
-        ))}
+        ))} */}
+
+        {/* El video solo sera con 2 personas */}
+        <Container
+          className="bg-red-500 absolute top-0 left-0 right-0 bottom-0
+        grid grid-cols-2 grid-rows-1 gap-1 flex-1"
+        >
+          <RemoteUser user={remoteUsers[0]} key={remoteUsers[0]?.uid} />
+        </Container>
+
+        <div className="relative w-48 h-48 rounded-2xl">
+          <LocalVideoTrack
+            track={localCameraTrack}
+            play={true}
+            className="w-full h-full rounded-2xl"
+          />
+        </div>
       </div>
     </div>
   );
