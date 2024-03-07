@@ -11,23 +11,16 @@ import {
 import { getFirestore, collection, doc, setDoc } from "firebase/firestore";
 import "firebase/firestore";
 // firestore
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ui from "@/redux/slices/ui";
 import Link from "next/link";
 import LoginForm from "@/components/auth/LoginForm";
 import RegisterForm from "@/components/auth/RegisterForm";
-import { useRouter } from "next/navigation";
 
 const auth = getAuth(appFirebase);
 const db = getFirestore(appFirebase);
 
 export default function Home() {
-  // redirigir a la ruta /login porque esa es la página de inicio
-  const router = useRouter();
-  useEffect(() => {
-    router.push("/login");
-  }, []);
-
   const [user, setUser] = useState(null) as any;
 
   onAuthStateChanged(auth, (user) => {
@@ -130,14 +123,13 @@ export default function Home() {
               ¡Bienvenido a Clinica Internacional!
             </h1>
           </div>
-          <h1 className="mb-4 text-3xl font-bold">Iniciar Sesión</h1>
-          <LoginForm />
+          <h1 className="mb-4 text-3xl font-bold">Registrarse</h1>
           <RegisterForm />
 
           <div className="mt-4 flex flex-row items-center gap-2">
-            <p>¿No tienes cuenta?</p>
-            <Link href="#" className="text-primary-500">
-              Regístrate
+            <p>¿Tienes una cuenta?</p>
+            <Link href="/login" className="text-primary-500">
+              Iniciar Sesión
             </Link>
           </div>
         </div>

@@ -23,6 +23,20 @@ export default function RootLayout({
     <html lang="es">
       <body className={inter.className}>
         <Providers>{children}</Providers>
+
+        <footer className="bg-black py-2 text-center text-sm text-white shadow-lg">
+          <p>
+            <a
+              href="https://www.linkedin.com/in/murphycoder/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline"
+            >
+              Brayan Murphy Crespo Espinoza
+            </a>{" "}
+            &copy; 2024
+          </p>
+        </footer>
       </body>
     </html>
   );
