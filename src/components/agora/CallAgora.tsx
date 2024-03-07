@@ -15,6 +15,9 @@ import AgoraRTC, {
   useTrackEvent,
 } from "agora-rtc-react";
 
+import { CiMicrophoneOff, CiMicrophoneOn } from "react-icons/ci";
+import { MdScreenShare, MdStopScreenShare } from "react-icons/md";
+
 function CallAgora(props: { appId: string; channelName: string }) {
   const client = useRTCClient(
     AgoraRTC.createClient({ codec: "vp8", mode: "rtc" })
@@ -89,6 +92,7 @@ function Videos(props: { channelName: string; AppID: string }) {
   const handleToggleScreenSharing = () => {
     setScreenSharing((previous) => !previous);
   };
+
   usePublish([localMicrophoneTrack, localCameraTrack]);
   useJoin({
     appid: AppID,
@@ -128,13 +132,19 @@ function Videos(props: { channelName: string; AppID: string }) {
   }
 
   const toggleMuteVideo = () => {
-    localCameraTrack?.setEnabled(!isMuteVideo);
-    setMuteVideo(!isMuteVideo);
+    localCameraTrack
+      ?.setEnabled(isMuteVideo)
+      .then(() => setMuteVideo((prev) => !prev))
+      .catch((error) => console.error(error));
   };
 
   const toggleMuteAudio = () => {
-    localMicrophoneTrack?.setEnabled(!isMuteAudio);
-    setMuteAudio(!isMuteAudio);
+    localMicrophoneTrack
+      ?.setEnabled(isMuteAudio)
+      .then(() => {
+        setMuteAudio((prev) => !prev);
+      })
+      .catch((error) => console.error(error));
   };
 
   return (
@@ -160,10 +170,20 @@ function Videos(props: { channelName: string; AppID: string }) {
           onClick={toggleMuteAudio}
           className="px-5 py-3 text-base font-medium text-center text-white bg-red-400 rounded-lg hover:bg-red-500 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 w-40"
         >
+          {isMuteAudio ? (
+            <CiMicrophoneOff className="w-12 h-12 text-sm" />
+          ) : (
+            <CiMicrophoneOn className="w-12 h-12 text-sm" />
+          )}
           {isMuteAudio ? "Unmute Audio" : "Mute Audio"}
         </button>
 
         <button onClick={handleToggleScreenSharing}>
+          {isSharingEnabled ? (
+            <MdStopScreenShare className="w-12 h-12 text-sm" />
+          ) : (
+            <MdScreenShare className="w-12 h-12 text-sm" />
+          )}
           {isSharingEnabled ? "Stop Sharing" : "Start Sharing"}
         </button>
 
