@@ -15,14 +15,24 @@ import AgoraRTC, {
   useTrackEvent,
 } from "agora-rtc-react";
 
-import { CiMicrophoneOff, CiMicrophoneOn } from "react-icons/ci";
-import { MdScreenShare, MdStopScreenShare } from "react-icons/md";
+import {
+  MdScreenShare,
+  MdStopScreenShare,
+  MdCallEnd,
+  MdCamera,
+  MdOutlineMicNone,
+  MdOutlineMicOff,
+  MdOutlineVideocam,
+  MdOutlineVideocamOff,
+} from "react-icons/md";
 import { Container } from "../shared/Container";
 import { ShareScreenComponent } from "./SharedScreen";
+import Link from "next/link";
+import Image from "next/image";
 
 function CallAgora(props: { appId: string; channelName: string }) {
   const client = useRTCClient(
-    AgoraRTC.createClient({ codec: "vp8", mode: "rtc" })
+    AgoraRTC.createClient({ codec: "vp8", mode: "rtc" }),
   );
   // const devices = AgoraRTC.getDevices();
   // console.log("devices", devices);
@@ -30,14 +40,6 @@ function CallAgora(props: { appId: string; channelName: string }) {
   return (
     <AgoraRTCProvider client={client}>
       <Videos channelName={props.channelName} AppID={props.appId} />
-      <div className="fixed z-10 bottom-0 left-0 right-0 flex justify-center pb-4">
-        {/* <a
-          className="px-5 py-3 text-base font-medium text-center text-white bg-red-400 rounded-lg hover:bg-red-500 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 w-40"
-          href="/"
-        >
-          End Call
-        </a> */}
-      </div>
     </AgoraRTCProvider>
   );
 }
@@ -51,7 +53,7 @@ function Videos(props: { channelName: string; AppID: string }) {
   const { audioTracks } = useRemoteAudioTracks(remoteUsers);
   const [isMuteVideo, setMuteVideo] = useState(false);
   const [isMuteAudio, setMuteAudio] = useState(false);
-  const [isSharingEnabled, setScreenSharing] = useState(false);
+  const [isSharingEnabled, setScreenSharing] = useState(false); // sirve para compartir pantalla local
 
   const handleToggleScreenSharing = () => {
     setScreenSharing((previous) => !previous);
@@ -70,6 +72,8 @@ function Videos(props: { channelName: string; AppID: string }) {
     return (
       <div className="flex flex-col items-center pt-40">Loading devices...</div>
     );
+
+  remoteUsers.length > 0 && console.log("remoteUsers", remoteUsers);
 
   const numUsers = remoteUsers.length + 1;
   let numCols = 1;
@@ -112,85 +116,100 @@ function Videos(props: { channelName: string; AppID: string }) {
   };
 
   return (
-    <div className="bg-slate-200 h-screen">
+    <div className="h-screen bg-white">
       {isSharingEnabled && (
-        <>
-          <h1>Aca debe de mostrarse</h1>
-          <ShareScreenComponent
-            setScreenSharing={setScreenSharing}
-            channelName={channelName}
-            AppID={AppID}
-            isSharingEnabled={isSharingEnabled}
-          />
-        </>
+        <ShareScreenComponent
+          setScreenSharing={setScreenSharing}
+          channelName={channelName}
+          AppID={AppID}
+          isSharingEnabled={isSharingEnabled}
+        />
       )}
 
       <Container className="py-4">
-        <div className="bg-cyan-100 w-full h-[70vh] my-10 rounded-lg flex justify-center items-center relative">
-          {isSharingEnabled ? (
-            <div
-              className="
-              w-full h-full rounded-lg shadow-md
-            "
-            >
-              <h1>
-                <p>Sharing aca mandamos la iamgen del video...</p>
-              </h1>
+        <div className="relative my-10 flex h-[70vh] w-full flex-col items-center justify-center rounded-lg bg-gradient-to-r from-indigo-500 via-cyan-500 to-gray-500 p-1">
+          {remoteUsers.length > 1 ? (
+            <div className="h-full w-full rounded-lg border-2 shadow-md">
+              <RemoteUser
+                user={remoteUsers[1]}
+                key={remoteUsers[1]?.uid}
+                className="h-full w-full rounded-lg border-2 shadow-md"
+              />
             </div>
           ) : (
             <RemoteUser
               user={remoteUsers[0]}
               key={remoteUsers[0]?.uid}
-              className="w-full h-full rounded-lg shadow-md"
+              className="h-full w-full rounded-lg shadow-md"
             />
           )}
-
-          {/* parte inferior derecha el usuario local */}
-          <div className="absolute bottom-0 right-0  w-40 h-40  bg-transparent rounded-sm p-4">
-            <LocalVideoTrack track={localCameraTrack} play={true} />
-
-            <div className="flex justify-center items-center">
-              <div className="w-4 h-4 bg-green-400 rounded-full"></div>
-              <p className="text-white text-sm ml-2">You</p>
-            </div>
+          {/* Parte inferior izquierda nombre remoto usuario */}
+          <div className="absolute bottom-0 left-0 m-4 flex items-center rounded-full bg-gray-800 bg-opacity-50 p-2 shadow-sm">
+            <span className="relative mr-2 flex h-3 w-3">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex h-3 w-3 rounded-full bg-green-500"></span>
+            </span>
+            <p className="text-[10px] text-white">Remote</p>
           </div>
 
-          <div className="fixed z-10 bottom-0 left-0 right-0 flex justify-center pb-4">
-            <a
-              className="px-5 py-3 text-base font-medium text-center text-white bg-red-400 rounded-lg hover:bg-red-500 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 w-40"
-              href="/"
-            >
-              End Call
-            </a>
+          {/* parte inferior derecha el usuario local */}
+          <div className="gradient-border absolute bottom-0  right-0 m-4  h-36 w-36 rounded-xl border-4 shadow-md">
+            <div className={`container h-full w-full rounded-xl`}>
+              <LocalVideoTrack
+                track={localCameraTrack}
+                play={true}
+                className="aspect-w-16 aspect-h-9 aspect-video h-full w-full rounded-xl object-cover shadow-md"
+              />
 
+              <div className="absolute bottom-0 right-0 flex items-center rounded-full bg-gray-800 bg-opacity-50 p-2">
+                <span className="relative mr-2 flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500"></span>
+                </span>
+                <p className="text-[10px] text-white">You</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-between space-x-4 pb-4">
+          <Image
+            src="/assets/logo.png"
+            alt="Agora Logo"
+            width={140}
+            height={40}
+            className="justify-start"
+          />
+          <div className="flex flex-row items-center justify-center space-x-4">
             <button
               onClick={toggleMuteVideo}
-              className="w-20 h-20 rounded-full bg-red-400 hover:bg-red-500 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900"
+              className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-gray-500 text-2xl text-white hover:bg-gray-600 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900"
             >
-              {isMuteVideo ? "Unmute Video" : "Mute Video"}
+              {isMuteVideo ? <MdOutlineVideocamOff /> : <MdOutlineVideocam />}
             </button>
 
             <button
               onClick={toggleMuteAudio}
-              className="px-5 py-3 text-base font-medium text-center text-white bg-red-400 rounded-lg hover:bg-red-500 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 w-40"
+              className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-gray-500 text-2xl text-white hover:bg-gray-600 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900"
             >
-              {isMuteAudio ? (
-                <CiMicrophoneOff className="w-12 h-12 text-sm" />
-              ) : (
-                <CiMicrophoneOn className="w-12 h-12 text-sm" />
-              )}
-              {isMuteAudio ? "Unmute Audio" : "Mute Audio"}
+              {isMuteAudio ? <MdOutlineMicOff /> : <MdOutlineMicNone />}
             </button>
 
-            <button onClick={handleToggleScreenSharing}>
-              {isSharingEnabled ? (
-                <MdStopScreenShare className="w-12 h-12 text-sm" />
-              ) : (
-                <MdScreenShare className="w-12 h-12 text-sm" />
-              )}
-              {isSharingEnabled ? "Stop Sharing" : "Start Sharing"}
+            <button
+              onClick={handleToggleScreenSharing}
+              className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-gray-500 text-2xl text-white hover:bg-gray-600 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900"
+            >
+              {isSharingEnabled ? <MdStopScreenShare /> : <MdScreenShare />}
             </button>
+
+            <Link
+              className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-red-400 text-2xl text-white hover:bg-red-500 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900"
+              href="/"
+            >
+              <MdCallEnd />
+            </Link>
           </div>
+          <div className=" flex-grow-0"></div>
         </div>
       </Container>
     </div>

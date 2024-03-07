@@ -4,15 +4,10 @@
 
 
 .agora_video_player {
-  border-radius: 1rem;
   background: transparent;
-  width: 100%;
-  height: 100%;
+
 }
 
-#agora-video-player-track-cam-dbf254ba-1 {
-  background: transparent;
-}
 
 @layer utilities {
   .text-balance {
