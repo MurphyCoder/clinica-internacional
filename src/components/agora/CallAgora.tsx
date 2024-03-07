@@ -1,4 +1,5 @@
 "use client";
+import { useState, useEffect } from "react";
 import AgoraRTC, {
   AgoraRTCProvider,
   LocalVideoTrack,
@@ -17,9 +18,16 @@ function CallAgora(props: { appId: string; channelName: string }) {
     AgoraRTC.createClient({ codec: "vp8", mode: "rtc" })
   );
 
+  const [isMuted, setIsMuted] = useState(false);
+
   return (
     <AgoraRTCProvider client={client}>
-      <Videos channelName={props.channelName} AppID={props.appId} />
+      <Videos
+        channelName={props.channelName}
+        AppID={props.appId}
+        isMuted={isMuted}
+        setIsMuted={setIsMuted}
+      />
       <div className="fixed z-10 bottom-0 left-0 right-0 flex justify-center pb-4">
         <a
           className="px-5 py-3 text-base font-medium text-center text-white bg-red-400 rounded-lg hover:bg-red-500 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 w-40"
@@ -51,14 +59,10 @@ function CallAgora(props: { appId: string; channelName: string }) {
           <button
             className="px-5 py-3 text-base font-medium text-center text-white bg-green-400 rounded-lg hover:bg-green-500 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 w-40"
             onClick={() => {
-              client.localTracks.forEach((track) => {
-                if (track.trackMediaType === "audio") {
-                  track.setEnabled(!track.muted);
-                }
-              });
+              setIsMuted(!isMuted);
             }}
           >
-            Mute
+            {isMuted ? "Unmute" : "Mute"}
           </button>
           <button
             className="px-5 py-3 text-base font-medium text-center text-white bg-green-400 rounded-lg hover:bg-green-500 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 w-40"
@@ -78,8 +82,13 @@ function CallAgora(props: { appId: string; channelName: string }) {
   );
 }
 
-function Videos(props: { channelName: string; AppID: string }) {
-  const { AppID, channelName } = props;
+function Videos(props: {
+  channelName: string;
+  AppID: string;
+  isMuted: boolean;
+  setIsMuted: (value: boolean) => void;
+}) {
+  const { AppID, channelName, isMuted, setIsMuted } = props;
   const { isLoading: isLoadingMic, localMicrophoneTrack } =
     useLocalMicrophoneTrack();
   const { isLoading: isLoadingCam, localCameraTrack } = useLocalCameraTrack();
@@ -88,6 +97,10 @@ function Videos(props: { channelName: string; AppID: string }) {
   const { audioTracks } = useRemoteAudioTracks(remoteUsers);
   console.log("🚀 ~ Videos ~ audioTracks:", audioTracks);
 
+  const client = useRTCClient(
+    AgoraRTC.createClient({ codec: "vp8", mode: "rtc" })
+  );
+
   usePublish([localMicrophoneTrack, localCameraTrack]);
   useJoin({
     appid: AppID,
@@ -95,7 +108,26 @@ function Videos(props: { channelName: string; AppID: string }) {
     token: null,
   });
 
-  audioTracks.map((track) => track.play());
+  // Controla la reproducción del audio local basado en el estado de isMuted
+  useEffect(() => {
+    if (localMicrophoneTrack) {
+      if (isMuted) {
+        localMicrophoneTrack.setEnabled(false); // Desactiva el audio local
+        setIsMuted(true);
+      } else {
+        localMicrophoneTrack.setEnabled(true); // Activa el audio local
+        setIsMuted(false);
+      }
+    }
+  }, [isMuted, localMicrophoneTrack]);
+
+  // Reproduce los audio tracks remotos
+  useEffect(() => {
+    audioTracks.forEach((track) => {
+      track.play();
+    });
+  }, [audioTracks]);
+
   const deviceLoading = isLoadingMic || isLoadingCam;
   if (deviceLoading)
     return (
@@ -136,6 +168,10 @@ function Videos(props: { channelName: string; AppID: string }) {
           play={true}
           className="w-full h-full"
         />
+
+        {/* Aquí puedes mostrar un indicador visual del estado del audio */}
+        <div>{isMuted ? "Microphone Muted" : "Microphone Unmuted"}</div>
+
         {remoteUsers.map((user) => (
           <div key={user.uid}>
             <RemoteUser user={user} />
