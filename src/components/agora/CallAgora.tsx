@@ -17,8 +17,8 @@ import AgoraRTC, {
 
 import { CiMicrophoneOff, CiMicrophoneOn } from "react-icons/ci";
 import { MdScreenShare, MdStopScreenShare } from "react-icons/md";
-import { ShareScreenComponent } from "./SharedScreen";
 import { Container } from "../shared/Container";
+import { ShareScreenComponent } from "./SharedScreen";
 
 function CallAgora(props: { appId: string; channelName: string }) {
   const client = useRTCClient(
@@ -112,76 +112,87 @@ function Videos(props: { channelName: string; AppID: string }) {
   };
 
   return (
-    <div className="">
-      <div
-      // className={`grid grid-cols-${numCols} grid-rows-${numRows} gap-1 flex-1`}
-      >
-        <div className="fixed z-10 bottom-0 left-0 right-0 flex justify-center pb-4">
-          <a
-            className="px-5 py-3 text-base font-medium text-center text-white bg-red-400 rounded-lg hover:bg-red-500 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 w-40"
-            href="/"
-          >
-            End Call
-          </a>
-
-          <button
-            onClick={toggleMuteVideo}
-            className="w-20 h-20 rounded-full bg-red-400 hover:bg-red-500 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900"
-          >
-            {isMuteVideo ? "Unmute Video" : "Mute Video"}
-          </button>
-
-          <button
-            onClick={toggleMuteAudio}
-            className="px-5 py-3 text-base font-medium text-center text-white bg-red-400 rounded-lg hover:bg-red-500 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 w-40"
-          >
-            {isMuteAudio ? (
-              <CiMicrophoneOff className="w-12 h-12 text-sm" />
-            ) : (
-              <CiMicrophoneOn className="w-12 h-12 text-sm" />
-            )}
-            {isMuteAudio ? "Unmute Audio" : "Mute Audio"}
-          </button>
-
-          <button onClick={handleToggleScreenSharing}>
-            {isSharingEnabled ? (
-              <MdStopScreenShare className="w-12 h-12 text-sm" />
-            ) : (
-              <MdScreenShare className="w-12 h-12 text-sm" />
-            )}
-            {isSharingEnabled ? "Stop Sharing" : "Start Sharing"}
-          </button>
-        </div>
-
-        {isSharingEnabled && (
+    <div className="bg-slate-200 h-screen">
+      {isSharingEnabled && (
+        <>
+          <h1>Aca debe de mostrarse</h1>
           <ShareScreenComponent
             setScreenSharing={setScreenSharing}
             channelName={channelName}
             AppID={AppID}
+            isSharingEnabled={isSharingEnabled}
           />
-        )}
+        </>
+      )}
 
-        {/*  Videos de los usuarios remotos */}
-        {/* {remoteUsers.map((user) => (
-          <RemoteUser user={user} key={user.uid} />
-        ))} */}
+      <Container className="py-4">
+        <div className="bg-cyan-100 w-full h-[70vh] my-10 rounded-lg flex justify-center items-center relative">
+          {isSharingEnabled ? (
+            <div
+              className="
+              w-full h-full rounded-lg shadow-md
+            "
+            >
+              <h1>
+                <p>Sharing aca mandamos la iamgen del video...</p>
+              </h1>
+            </div>
+          ) : (
+            <RemoteUser
+              user={remoteUsers[0]}
+              key={remoteUsers[0]?.uid}
+              className="w-full h-full rounded-lg shadow-md"
+            />
+          )}
 
-        {/* El video solo sera con 2 personas */}
-        <Container
-          className="bg-red-500 absolute top-0 left-0 right-0 bottom-0
-        grid grid-cols-2 grid-rows-1 gap-1 flex-1"
-        >
-          <RemoteUser user={remoteUsers[0]} key={remoteUsers[0]?.uid} />
-        </Container>
+          {/* parte inferior derecha el usuario local */}
+          <div className="absolute bottom-0 right-0  w-40 h-40  bg-transparent rounded-sm p-4">
+            <LocalVideoTrack track={localCameraTrack} play={true} />
 
-        <div className="relative w-48 h-48 rounded-2xl">
-          <LocalVideoTrack
-            track={localCameraTrack}
-            play={true}
-            className="w-full h-full rounded-2xl"
-          />
+            <div className="flex justify-center items-center">
+              <div className="w-4 h-4 bg-green-400 rounded-full"></div>
+              <p className="text-white text-sm ml-2">You</p>
+            </div>
+          </div>
+
+          <div className="fixed z-10 bottom-0 left-0 right-0 flex justify-center pb-4">
+            <a
+              className="px-5 py-3 text-base font-medium text-center text-white bg-red-400 rounded-lg hover:bg-red-500 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 w-40"
+              href="/"
+            >
+              End Call
+            </a>
+
+            <button
+              onClick={toggleMuteVideo}
+              className="w-20 h-20 rounded-full bg-red-400 hover:bg-red-500 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900"
+            >
+              {isMuteVideo ? "Unmute Video" : "Mute Video"}
+            </button>
+
+            <button
+              onClick={toggleMuteAudio}
+              className="px-5 py-3 text-base font-medium text-center text-white bg-red-400 rounded-lg hover:bg-red-500 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 w-40"
+            >
+              {isMuteAudio ? (
+                <CiMicrophoneOff className="w-12 h-12 text-sm" />
+              ) : (
+                <CiMicrophoneOn className="w-12 h-12 text-sm" />
+              )}
+              {isMuteAudio ? "Unmute Audio" : "Mute Audio"}
+            </button>
+
+            <button onClick={handleToggleScreenSharing}>
+              {isSharingEnabled ? (
+                <MdStopScreenShare className="w-12 h-12 text-sm" />
+              ) : (
+                <MdScreenShare className="w-12 h-12 text-sm" />
+              )}
+              {isSharingEnabled ? "Stop Sharing" : "Start Sharing"}
+            </button>
+          </div>
         </div>
-      </div>
+      </Container>
     </div>
   );
 }
