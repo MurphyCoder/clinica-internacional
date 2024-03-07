@@ -53,7 +53,7 @@ const ShareScreenComponent: React.FC<{
   useJoin(
     {
       appid: "8d0e6c0588194991af086560049f5bea",
-      channel: "miachisidiot",
+      channel: "miachis",
       token: null,
       uid: 0,
     },
@@ -172,7 +172,7 @@ function Videos(props: { channelName: string; AppID: string }) {
         )}
 
         {remoteUsers.map((user) => (
-          <RemoteUser user={user} />
+          <RemoteUser user={user} key={user.uid} />
         ))}
       </div>
     </div>
