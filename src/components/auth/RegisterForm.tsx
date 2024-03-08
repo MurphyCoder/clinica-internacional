@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { AuthForm, authFormSchema } from "@/models/Form";
-import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  getAuth,
+  onAuthStateChanged,
+} from "firebase/auth";
 import { doc, getFirestore, setDoc } from "firebase/firestore";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -11,6 +15,21 @@ const RegisterForm = () => {
   const db = getFirestore(appFirebase);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<null | string>(null);
+  const [user, setUser] = useState(null) as any;
+
+  // onAuthStateChanged para saber si el usuario está logeado
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // User is signed in
+      const uid = user.uid;
+      console.log("Usuario logeado", uid, user.email);
+      setUser(user);
+    } else {
+      // User is signed out
+      console.log("Usuario no logeado");
+      setUser(null);
+    }
+  });
 
   const {
     register,
@@ -61,6 +80,26 @@ const RegisterForm = () => {
         <p className="rounded-md bg-red-400 px-3 py-2 text-center text-white">
           {errorMessage}
         </p>
+      )}
+
+      {user && (
+        <div className="flex flex-col items-center">
+          <h2 className="mt-2 text-2xl font-bold">Bienvenido</h2>
+          <p className="mt-4 text-lg">Usuario: {user?.email}</p>
+          <button
+            onClick={async () => {
+              try {
+                await auth.signOut();
+                setUser(null);
+              } catch (error) {
+                console.log("Error al cerrar sesión", error);
+              }
+            }}
+            className="rounded-lg bg-red-500 p-2 text-white"
+          >
+            Cerrar Sesión
+          </button>
+        </div>
       )}
 
       <form

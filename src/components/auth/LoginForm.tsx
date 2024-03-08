@@ -1,59 +1,94 @@
-import appFirebase from "@/utils/credentials_firebase";
+import { useState } from "react";
+import { AuthFormLogin, authFormLoginSchema } from "@/models/FormLogin";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getFirestore, setDoc } from "firebase/firestore";
-import React from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import appFirebase from "@/utils/credentials_firebase";
 
-const LoginForm = () => {
+const loginForm = () => {
   const auth = getAuth(appFirebase);
   const db = getFirestore(appFirebase);
-  const handleLoginFirebase = async (e: any) => {
-    e.preventDefault();
-    const email = document.getElementById("email") as HTMLInputElement;
-    const password = document.getElementById("password") as HTMLInputElement;
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<null | string>(null);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<AuthFormLogin>({
+    resolver: yupResolver(authFormLoginSchema),
+  });
+
+  const handleFormSubmit = async (data: AuthFormLogin) => {
+    console.log(data);
+    setErrorMessage(null);
+    setLoading(true);
+    const { email, password } = data;
 
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
-        email.value,
-        password.value,
+        email,
+        password,
       );
-
       // Signed in
       const user = userCredential.user;
       console.log("Usuario logeado", user);
-      // Si el usuario se logea, se guarda en la base de datos de firestore los datos del usuario
-      if (user) {
-        await setDoc(doc(db, "users", user.uid), {
-          email: user.email,
-          lastLogin: new Date(),
-          group: "miachis",
-          uid_agora_user: "miachis_uid_agora_user",
-        });
-      }
-    } catch (error) {
+      reset();
+    } catch (error: any) {
       console.log("Error al iniciar sesión", error);
+      setErrorMessage(error.message);
+      setLoading(false);
     }
   };
 
   return (
     <>
-      <form className="flex w-full max-w-md flex-col">
-        <input
-          type="text"
-          placeholder="Correo Electrónico"
-          className="mb-4 w-full rounded-lg border border-gray-300 p-2"
-          id="email"
-        />
-        <input
-          type="password"
-          placeholder="Contraseña"
-          className="mb-4 rounded-lg border border-gray-300 p-2"
-          id="password"
-        />
+      {errorMessage && (
+        <p className="rounded-md bg-red-400 px-3 py-2 text-center text-white">
+          {errorMessage}
+        </p>
+      )}
+
+      <form
+        onSubmit={handleSubmit(handleFormSubmit)}
+        className="flex w-full max-w-md flex-col space-y-2"
+      >
+        <div>
+          <input
+            type="email"
+            placeholder="Correo Electrónico"
+            className=" w-full rounded-lg border border-gray-300 p-2"
+            {...register("email")}
+          />
+          {errors.email ? (
+            <span className=" px-2 text-sm text-red-700 ">
+              {errors.email.message}
+            </span>
+          ) : (
+            <></>
+          )}
+        </div>
+        <div>
+          <input
+            {...register("password")}
+            placeholder="Contraseña"
+            type="password"
+            className=" w-full rounded-lg border border-gray-300 p-2"
+          />
+          {errors.password ? (
+            <span className=" px-2 text-sm text-red-700 ">
+              {errors.password.message}
+            </span>
+          ) : (
+            <></>
+          )}
+        </div>
         <button
-          type="submit"
-          className="bg-primary-500 rounded-lg p-2 text-white"
-          onClick={handleLoginFirebase}
+          className="bg-primary-500 rounded-lg p-2 text-white disabled:opacity-50"
+          disabled={loading}
         >
           Iniciar Sesión
         </button>
@@ -62,4 +97,4 @@ const LoginForm = () => {
   );
 };
 
-export default LoginForm;
+export default loginForm;
