@@ -7,7 +7,7 @@ import appFirebase from "@/utils/credentials_firebase";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 
-const loginForm = () => {
+const LoginForm = () => {
   const auth = getAuth(appFirebase);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -100,4 +100,4 @@ const loginForm = () => {
   );
 };
 
-export default loginForm;
+export default LoginForm;

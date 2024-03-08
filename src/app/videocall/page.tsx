@@ -55,7 +55,7 @@ const PageVideoCall = () => {
         setUser(null);
       }
     });
-  }, []);
+  }, [router]);
   // Obtener los datos del usuario logeado que esta en firebase users, hacer la consulta a la base de datos
 
   return (
