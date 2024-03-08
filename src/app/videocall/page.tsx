@@ -1,26 +1,26 @@
 "use client";
 import appFirebase from "@/utils/credentials_firebase";
-import { group } from "console";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { collection, getFirestore, getDoc, doc } from "firebase/firestore";
+import { getFirestore, getDoc, doc } from "firebase/firestore";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { MdVideocam, MdLogout } from "react-icons/md";
 import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 
 const PageVideoCall = () => {
   const [user, setUser] = useState(null) as any;
+  const router = useRouter();
   console.log("🚀 ~ PageVideoCall ~ user:", user);
 
   const auth = getAuth(appFirebase);
-  const db = getFirestore(appFirebase);
 
   const handleLogout = async () => {
     try {
       await auth.signOut();
-      console.log("Usuario deslogeado");
       Cookies.remove("authTokensEmail");
+      router.push("/login");
     } catch (error) {
       console.log("Error al deslogear usuario", error);
     }
@@ -50,6 +50,8 @@ const PageVideoCall = () => {
         }
       } else {
         console.log("Usuario no logeado");
+        Cookies.remove("authTokensEmail");
+        router.push("/login");
         setUser(null);
       }
     });

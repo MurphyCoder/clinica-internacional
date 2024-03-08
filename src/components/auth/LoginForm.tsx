@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { AuthFormLogin, authFormLoginSchema } from "@/models/FormLogin";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { doc, getFirestore, setDoc } from "firebase/firestore";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import appFirebase from "@/utils/credentials_firebase";
 import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 
 const loginForm = () => {
   const auth = getAuth(appFirebase);
-  const db = getFirestore(appFirebase);
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<null | string>(null);
 
@@ -35,10 +35,9 @@ const loginForm = () => {
       );
       // Signed in
       const user = userCredential.user;
-
       Cookies.set("authTokensEmail", user.email as string, { expires: 7 }); // 7 días de expiración de la cookie
-
       console.log("Usuario logeado", user);
+      router.push("/videocall");
       setLoading(false);
       reset();
     } catch (error: any) {

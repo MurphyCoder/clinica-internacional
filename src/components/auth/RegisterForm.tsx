@@ -10,25 +10,26 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import appFirebase from "@/utils/credentials_firebase";
 import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 
 const RegisterForm = () => {
   const auth = getAuth(appFirebase);
   const db = getFirestore(appFirebase);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<null | string>(null);
-  const [user, setUser] = useState(null) as any;
+  const router = useRouter();
 
   // onAuthStateChanged para saber si el usuario está logeado
   onAuthStateChanged(auth, (user) => {
     if (user) {
       // User is signed in
       const uid = user.uid;
-      console.log("Usuario logeadoasdasd", uid, user.email);
-      setUser(user);
+      console.log("Usuario logeado desde registros", uid, user.email);
+      Cookies.set("authTokensEmail", user.email as string, { expires: 7 }); // 7 días de expiración de la cookie
+      router.push("/videocall");
     } else {
       // User is signed out
       console.log("Usuario no logeado");
-      setUser(null);
     }
   });
 
@@ -53,7 +54,7 @@ const RegisterForm = () => {
         password,
       );
       // Signed in
-      const user = userCredential.user;
+      const user = userCredential.user; // Datos del usuario
       console.log("Usuario registrado", user);
       reset();
       // Si el usuario se logea, se guarda en la base de datos de firestore los datos del usuario
@@ -61,26 +62,17 @@ const RegisterForm = () => {
         await setDoc(doc(db, "users", user.uid), {
           email: user.email,
           lastLogin: new Date(),
-          group: "miachis",
-          uid_agora_user: "miachis_uid_agora_user",
+          group: "clinica-internacional",
+          uid_agora_user: "id_agora_user",
           full_name: full_name,
+          isAdmin: false,
         });
       }
       setLoading(false);
     } catch (error: any) {
       setLoading(false);
-      console.log("Error al iniciar sesión", error);
-      setErrorMessage(error);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await auth.signOut();
-      console.log("Usuario deslogeado");
-      Cookies.remove("authTokensEmail");
-    } catch (error) {
-      console.log("Error al deslogear usuario", error);
+      console.log("Error al iniciar sesión", error.message);
+      setErrorMessage(error.message);
     }
   };
 
@@ -90,19 +82,6 @@ const RegisterForm = () => {
         <p className="rounded-md bg-red-400 px-3 py-2 text-center text-white">
           {errorMessage}
         </p>
-      )}
-
-      {user && (
-        <div className="flex flex-col items-center">
-          <h2 className="mt-2 text-2xl font-bold">Bienvenido</h2>
-          <p className="mt-4 text-lg">Usuario: {user?.email}</p>
-          <button
-            onClick={handleLogout}
-            className="rounded-lg bg-red-500 p-2 text-white"
-          >
-            Cerrar Sesión
-          </button>
-        </div>
       )}
 
       <form

@@ -6,9 +6,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { MdVideocam } from "react-icons/md";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 
 export const PageVideoCall = () => {
   const [user, setUser] = useState(null) as any;
+  const router = useRouter();
   console.log("🚀 ~ PageVideoCall ~ user:", user);
 
   const auth = getAuth(appFirebase);
@@ -19,6 +22,7 @@ export const PageVideoCall = () => {
       await auth.signOut();
       console.log("Usuario deslogeado");
       Cookies.remove("authTokensEmail");
+      router.push("/login");
     } catch (error) {
       console.log("Error al deslogear usuario", error);
     }
