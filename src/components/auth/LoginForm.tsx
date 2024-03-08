@@ -6,18 +6,20 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import appFirebase from "@/utils/credentials_firebase";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import { useDispatch } from "@/redux/store";
+import { login } from "@/redux/slices/auth";
 
 const LoginForm = () => {
   const auth = getAuth(appFirebase);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<null | string>(null);
+  const dispatch = useDispatch();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-    reset,
   } = useForm<AuthFormLogin>({
     resolver: yupResolver(authFormLoginSchema),
   });
@@ -37,9 +39,16 @@ const LoginForm = () => {
       const user = userCredential.user;
       Cookies.set("authTokensEmail", user.email as string, { expires: 7 }); // 7 días de expiración de la cookie
       console.log("Usuario logeado", user);
+      dispatch(
+        login({
+          email: user.email as string,
+          id: user.uid,
+          photoUrl: user.photoURL || null,
+          full_name: user.displayName || null,
+        }),
+      );
       router.push("/videocall");
       setLoading(false);
-      reset();
     } catch (error: any) {
       console.log("Error al iniciar sesión", error);
       setErrorMessage(error.message);

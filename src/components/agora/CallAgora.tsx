@@ -29,6 +29,13 @@ import { ShareScreenComponent } from "./SharedScreen";
 import Link from "next/link";
 import Image from "next/image";
 import LoadingScreen from "../shared/LoadingScreen";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
+// Redux
+import { useDispatch } from "@/redux/store";
+import { logout } from "@/redux/slices/auth";
+import appFirebase from "@/utils/credentials_firebase";
+import { getAuth } from "firebase/auth";
 
 function CallAgora(props: { appId: string; channelName: string }) {
   const client = useRTCClient(
@@ -43,6 +50,7 @@ function CallAgora(props: { appId: string; channelName: string }) {
 }
 
 function Videos(props: { channelName: string; AppID: string }) {
+  const auth = getAuth(appFirebase);
   const { AppID, channelName } = props;
   const { isLoading: isLoadingMic, localMicrophoneTrack } =
     useLocalMicrophoneTrack();
@@ -52,6 +60,8 @@ function Videos(props: { channelName: string; AppID: string }) {
   const [isMuteVideo, setMuteVideo] = useState(false);
   const [isMuteAudio, setMuteAudio] = useState(false);
   const [isSharingEnabled, setScreenSharing] = useState(false); // sirve para compartir pantalla local
+  const router = useRouter();
+  const dispatch = useDispatch();
   // seleccionar el video que queremos en la pantalla grande
   const [selectedUidVideo, setSelectedUidVideo] = useState(0);
 
@@ -109,6 +119,13 @@ function Videos(props: { channelName: string; AppID: string }) {
       .catch((error) => console.error(error));
   };
 
+  const handleLogout = async () => {
+    await auth.signOut();
+    dispatch(logout());
+    Cookies.remove("authTokensEmail");
+    router.push("/login");
+  };
+
   return (
     <div className="h-screen bg-white">
       {isSharingEnabled && (
@@ -122,7 +139,6 @@ function Videos(props: { channelName: string; AppID: string }) {
 
       <Container className="py-4">
         <div className="relative my-10 flex h-[70vh] w-full flex-col items-center justify-center rounded-lg bg-gradient-to-r from-indigo-500 via-cyan-500 to-gray-500 p-1">
-          {/* Aca debo de mostrar el video del usuario seleccionado en pantalla grande y reemplazarlo cuando se comparte pantalla */}
           <div className="h-full w-full rounded-lg border-2 shadow-md">
             <RemoteUser
               user={
@@ -160,6 +176,7 @@ function Videos(props: { channelName: string; AppID: string }) {
             </p>
           </div>
 
+          {/* Video Local parte inferior derecha*/}
           <div
             className={`absolute bottom-0 right-0 rounded-xl border-4 shadow-md transition-all duration-500 ${remoteUsers.length === 0 ? "flex h-full w-full p-0" : "m-4 h-36 w-36"}`}
           >
@@ -192,38 +209,38 @@ function Videos(props: { channelName: string; AppID: string }) {
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Si tengo mas de 2 usuarios colocarlos en una grilla y que se ordene en un cuadrado con bordes blancos separados y sus nombres de usuario */}
-        {remoteUsers.length > 1 && (
-          <div className="flex h-full w-full flex-col items-center justify-center rounded-lg bg-gradient-to-r from-indigo-500 via-cyan-500 to-gray-500 py-4 shadow-md">
-            <div className="grid grid-cols-3 gap-4">
-              {/* filtraremos  que  el usuario seleccionado no se muestre en la grilla  */}
-              {remoteUsers
-                .filter((user) => user.uid !== selectedUidVideo)
-                .map((user) => (
-                  <div
-                    key={user.uid}
-                    className="relative h-36 w-36 rounded-xl border-4 shadow-md"
-                    onClick={() => setSelectedUidVideo(user.uid as number)}
-                  >
-                    <RemoteUser
-                      user={user}
+          {/* Si tengo mas de 2 usuarios colocarlos en una grilla y que se ordene en un cuadrado con bordes blancos separados y sus nombres de usuario */}
+          {remoteUsers.length > 1 && (
+            <div className="absolute right-0 top-0 w-full pt-4">
+              <div className="flex h-full w-full flex-wrap justify-end gap-2 overflow-x-auto overflow-y-auto rounded-lg  px-4 pt-2">
+                {/* filtraremos  que  el usuario seleccionado no se muestre en la grilla  */}
+                {remoteUsers
+                  .filter((user) => user.uid !== selectedUidVideo)
+                  .map((user) => (
+                    <div
                       key={user.uid}
-                      className="h-full w-full rounded-xl"
-                    />
-                    <div className="absolute bottom-0 right-0 flex items-center rounded-full bg-gray-800 bg-opacity-50 p-2">
-                      <span className="relative mr-2 flex h-2 w-2">
-                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
-                        <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500"></span>
-                      </span>
-                      <p className="text-[10px] text-white">{user.uid}</p>
+                      className="relative h-32 w-32 rounded-xl border-4 shadow-md"
+                      onClick={() => setSelectedUidVideo(user.uid as number)}
+                    >
+                      <RemoteUser
+                        user={user}
+                        key={user.uid}
+                        className="h-full w-full rounded-xl"
+                      />
+                      <div className="absolute bottom-0 right-0 flex items-center rounded-full bg-gray-800 bg-opacity-50 p-2">
+                        <span className="relative mr-2 flex h-2 w-2">
+                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
+                          <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500"></span>
+                        </span>
+                        <p className="text-[10px] text-white">{user.uid}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Botones de control */}
         <div className="flex flex-col justify-between space-x-4 space-y-3 pb-4 sm:flex-row">
@@ -266,7 +283,7 @@ function Videos(props: { channelName: string; AppID: string }) {
           {/* Botones de control */}
 
           <button
-            // onClick={handleLogout}
+            onClick={handleLogout}
             className="rounded-lg bg-red-500 p-4 text-sm text-white"
           >
             Cerrar Sesión <MdLogout className="ml-2 inline-block text-2xl" />

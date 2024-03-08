@@ -12,7 +12,7 @@ import { getFirestore, collection, doc, setDoc } from "firebase/firestore";
 import "firebase/firestore";
 // firestore
 import { useState } from "react";
-import ui from "@/redux/slices/ui";
+import ui from "@/redux/slices/auth";
 import Link from "next/link";
 import LoginForm from "@/components/auth/LoginForm";
 import RegisterForm from "@/components/auth/RegisterForm";

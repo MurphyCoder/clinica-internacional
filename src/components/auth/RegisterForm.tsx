@@ -11,6 +11,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import appFirebase from "@/utils/credentials_firebase";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import { useDispatch } from "@/redux/store";
+import { login } from "@/redux/slices/auth";
 
 const RegisterForm = () => {
   const auth = getAuth(appFirebase);
@@ -18,6 +20,7 @@ const RegisterForm = () => {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<null | string>(null);
   const router = useRouter();
+  const dispatch = useDispatch();
 
   // onAuthStateChanged para saber si el usuario está logeado
   onAuthStateChanged(auth, (user) => {
@@ -26,6 +29,14 @@ const RegisterForm = () => {
       const uid = user.uid;
       console.log("Usuario logeado desde registros", uid, user.email);
       Cookies.set("authTokensEmail", user.email as string, { expires: 7 }); // 7 días de expiración de la cookie
+      dispatch(
+        login({
+          email: user.email as string,
+          id: user.uid,
+          photoUrl: user.photoURL || null,
+          full_name: user.displayName || null,
+        }),
+      );
       router.push("/videocall");
     } else {
       // User is signed out
@@ -37,7 +48,6 @@ const RegisterForm = () => {
     register,
     handleSubmit,
     formState: { errors },
-    reset,
   } = useForm<AuthForm>({
     resolver: yupResolver(authFormSchema),
   });
@@ -56,7 +66,6 @@ const RegisterForm = () => {
       // Signed in
       const user = userCredential.user; // Datos del usuario
       console.log("Usuario registrado", user);
-      reset();
       // Si el usuario se logea, se guarda en la base de datos de firestore los datos del usuario
       if (user) {
         await setDoc(doc(db, "users", user.uid), {

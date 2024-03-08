@@ -8,10 +8,13 @@ import { useEffect, useState } from "react";
 import { MdVideocam, MdLogout } from "react-icons/md";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import { useDispatch } from "@/redux/store";
+import { logout } from "@/redux/slices/auth";
 
 const PageVideoCall = () => {
   const [user, setUser] = useState(null) as any;
   const router = useRouter();
+  const dispatch = useDispatch();
   console.log("🚀 ~ PageVideoCall ~ user:", user);
 
   const auth = getAuth(appFirebase);
@@ -19,6 +22,7 @@ const PageVideoCall = () => {
   const handleLogout = async () => {
     try {
       await auth.signOut();
+      dispatch(logout());
       Cookies.remove("authTokensEmail");
       router.push("/login");
     } catch (error) {

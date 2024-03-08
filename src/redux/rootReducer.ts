@@ -1,9 +1,9 @@
-'use client';
-import { combineReducers } from 'redux';
-import { persistReducer } from 'redux-persist';
-import createWebStorage from 'redux-persist/lib/storage/createWebStorage';
+"use client";
+import { combineReducers } from "redux";
+import { persistReducer } from "redux-persist";
+import createWebStorage from "redux-persist/lib/storage/createWebStorage";
 // slices
-import uiReducer from './slices/ui';
+import authReducer from "./slices/auth";
 
 // ----------------------------------------------------------------------
 
@@ -11,7 +11,7 @@ const createNoopStorage = () => ({
   getItem() {
     return Promise.resolve(null);
   },
-  setItem(_key: any, value = '') {
+  setItem(_key: any, value = "") {
     return Promise.resolve(value);
   },
   removeItem() {
@@ -20,33 +20,31 @@ const createNoopStorage = () => ({
 });
 
 const storage =
-  typeof window !== 'undefined'
-    ? createWebStorage('local')
+  typeof window !== "undefined"
+    ? createWebStorage("local")
     : createNoopStorage();
 
 const rootPersistConfig = {
-  key: 'root',
+  key: "root",
   storage,
-  keyPrefix: 'redux-',
+  keyPrefix: "redux-",
   whitelist: [],
 };
 
-// const establishmentPersistConfig = {
-//   key: 'establecimientos',
-//   storage,
-//   keyPrefix: 'redux-',
-//   whitelist: ['establishmentSelected', 'establishment'],
-// };
+const authPersistConfig = {
+  key: "auth",
+  storage,
+  keyPrefix: "redux-",
+  whitelist: ["user"],
+};
 
-// const vehiclePersistConfig = {
-//   key: 'vehicles',
-//   storage,
-//   keyPrefix: 'redux-',
-//   whitelist: ['filters', 'valueLabelFilterSelect'],
-// };
-
+// const  rootReducer = combineReducers({
+//   auth: persistReducer(authPersistConfig, authReducer),
+//   authReducer,
+// });
+// convertir para ts
 const rootReducer = combineReducers({
-  ui: uiReducer,
+  auth: persistReducer(authPersistConfig, authReducer),
 });
-
-export { rootPersistConfig, rootReducer };
+export type RootState = ReturnType<typeof rootReducer>;
+export { rootReducer, rootPersistConfig };
