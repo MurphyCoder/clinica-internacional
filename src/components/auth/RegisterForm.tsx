@@ -9,6 +9,7 @@ import { doc, getFirestore, setDoc } from "firebase/firestore";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import appFirebase from "@/utils/credentials_firebase";
+import Cookies from "js-cookie";
 
 const RegisterForm = () => {
   const auth = getAuth(appFirebase);
@@ -22,7 +23,7 @@ const RegisterForm = () => {
     if (user) {
       // User is signed in
       const uid = user.uid;
-      console.log("Usuario logeado", uid, user.email);
+      console.log("Usuario logeadoasdasd", uid, user.email);
       setUser(user);
     } else {
       // User is signed out
@@ -41,7 +42,6 @@ const RegisterForm = () => {
   });
 
   const handleFormSubmit = async (data: AuthForm) => {
-    console.log(data);
     setErrorMessage(null);
     setLoading(true);
     const { email, password, full_name } = data;
@@ -74,6 +74,16 @@ const RegisterForm = () => {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await auth.signOut();
+      console.log("Usuario deslogeado");
+      Cookies.remove("authTokensEmail");
+    } catch (error) {
+      console.log("Error al deslogear usuario", error);
+    }
+  };
+
   return (
     <>
       {errorMessage && (
@@ -87,14 +97,7 @@ const RegisterForm = () => {
           <h2 className="mt-2 text-2xl font-bold">Bienvenido</h2>
           <p className="mt-4 text-lg">Usuario: {user?.email}</p>
           <button
-            onClick={async () => {
-              try {
-                await auth.signOut();
-                setUser(null);
-              } catch (error) {
-                console.log("Error al cerrar sesión", error);
-              }
-            }}
+            onClick={handleLogout}
             className="rounded-lg bg-red-500 p-2 text-white"
           >
             Cerrar Sesión

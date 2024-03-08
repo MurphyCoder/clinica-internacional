@@ -5,6 +5,7 @@ import { doc, getFirestore, setDoc } from "firebase/firestore";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import appFirebase from "@/utils/credentials_firebase";
+import Cookies from "js-cookie";
 
 const loginForm = () => {
   const auth = getAuth(appFirebase);
@@ -22,7 +23,6 @@ const loginForm = () => {
   });
 
   const handleFormSubmit = async (data: AuthFormLogin) => {
-    console.log(data);
     setErrorMessage(null);
     setLoading(true);
     const { email, password } = data;
@@ -35,7 +35,11 @@ const loginForm = () => {
       );
       // Signed in
       const user = userCredential.user;
+
+      Cookies.set("authTokensEmail", user.email as string, { expires: 7 }); // 7 días de expiración de la cookie
+
       console.log("Usuario logeado", user);
+      setLoading(false);
       reset();
     } catch (error: any) {
       console.log("Error al iniciar sesión", error);
