@@ -15,7 +15,6 @@ const PageVideoCall = () => {
   const [user, setUser] = useState(null) as any;
   const router = useRouter();
   const dispatch = useDispatch();
-  console.log("🚀 ~ PageVideoCall ~ user:", user);
 
   const auth = getAuth(appFirebase);
 
@@ -66,13 +65,13 @@ const PageVideoCall = () => {
     <section className="bg-slate-100">
       <div className="flex h-screen flex-col items-center justify-center space-y-4">
         <div
-          className="focus:border-primary-300 w-96
-          space-y-4
+          className="w-96 space-y-4
           rounded-lg
           bg-slate-50
           p-8
           text-center
           shadow-lg
+          focus:border-primary-300
         "
         >
           <div className="my-2 hidden md:block">
@@ -92,7 +91,7 @@ const PageVideoCall = () => {
             height={96}
           />
 
-          <h1 className="text-primary-500 text-xl font-bold">
+          <h1 className="text-xl font-bold text-primary-500">
             ¡Hola, {user?.full_name || "Usuario"}!
             <p className="text-sm font-normal text-gray-500">{user?.email}</p>
           </h1>
@@ -111,8 +110,8 @@ const PageVideoCall = () => {
 
             <Link
               href={user?.group ? `/videocall/${user?.group}` : "#"}
-              className="bg-primary-500
-              rounded-lg
+              className="rounded-lg
+              bg-primary-500
               p-2
               text-center
               text-sm

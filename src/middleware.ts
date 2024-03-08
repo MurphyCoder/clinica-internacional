@@ -4,7 +4,6 @@ import type { NextRequest } from "next/server";
 // This function can be marked `async` if using `await` inside
 export function middleware(request: NextRequest) {
   const authTokensEmail = request.cookies.get("authTokensEmail")?.value;
-  console.log("🚀 ~ middleware ~ authTokensEmail:", authTokensEmail);
 
   // Si es del tipo admin y no tiene la cookie de autenticación, redirigir a la página de login
   if (request.nextUrl.pathname.startsWith("/videocall") && !authTokensEmail) {

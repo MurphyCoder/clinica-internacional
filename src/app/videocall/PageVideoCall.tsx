@@ -12,7 +12,6 @@ import { useRouter } from "next/navigation";
 export const PageVideoCall = () => {
   const [user, setUser] = useState(null) as any;
   const router = useRouter();
-  console.log("🚀 ~ PageVideoCall ~ user:", user);
 
   const auth = getAuth(appFirebase);
   const db = getFirestore(appFirebase);
@@ -61,13 +60,13 @@ export const PageVideoCall = () => {
     <section className="bg-slate-100">
       <div className="flex h-screen flex-col items-center justify-center space-y-4">
         <div
-          className="focus:border-primary-300 w-96
-          space-y-4
+          className="w-96 space-y-4
           rounded-lg
           bg-slate-50
           p-8
           text-center
           shadow-lg
+          focus:border-primary-300
         "
         >
           <div className="my-2 hidden md:block">
@@ -87,7 +86,7 @@ export const PageVideoCall = () => {
             height={96}
           />
 
-          <h1 className="text-primary-500 text-xl font-bold">
+          <h1 className="text-xl font-bold text-primary-500">
             ¡Hola, {user?.full_name || "Usuario"}!
             <p className="text-sm font-normal text-gray-500">{user?.email}</p>
           </h1>
@@ -99,7 +98,7 @@ export const PageVideoCall = () => {
           <div>
             <Link
               href={user?.group ? `/videocall/${user?.group}` : "#"}
-              className="bg-primary-500 hover:bg-primary-700 focus:border-primary-300 active:bg-primary-700 flex transform items-center justify-center space-x-2 rounded-full px-4 py-2 text-xl font-bold text-white transition duration-300 ease-in-out hover:scale-105 hover:shadow-md focus:outline-none focus:ring"
+              className="flex transform items-center justify-center space-x-2 rounded-full bg-primary-500 px-4 py-2 text-xl font-bold text-white transition duration-300 ease-in-out hover:scale-105 hover:bg-primary-700 hover:shadow-md focus:border-primary-300 focus:outline-none focus:ring active:bg-primary-700"
             >
               Unirse a la videollamada{" "}
               <MdVideocam className="ml-2 inline-block text-2xl" />
