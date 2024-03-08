@@ -45,28 +45,28 @@ export const ShareScreenComponent: React.FC<{
   if (isLoading) {
     return (
       <Container>
-        <p>Compartiendo pantalla...</p>
+        <div className="flex w-full items-center justify-center ">
+          <svg
+            fill="none"
+            className="h-6 w-6 animate-spin"
+            viewBox="0 0 32 32"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              clip-rule="evenodd"
+              d="M15.165 8.53a.5.5 0 01-.404.58A7 7 0 1023 16a.5.5 0 011 0 8 8 0 11-9.416-7.874.5.5 0 01.58.404z"
+              fill="currentColor"
+              fill-rule="evenodd"
+            />
+          </svg>
+          <p className="text-sm text-gray-700">Compartiendo pantalla...</p>
+        </div>
       </Container>
     );
   }
 
   if (error) {
     return <p>Error al compartir pantalla</p>;
-  }
-
-  if (isSharingEnabled) {
-    return (
-      <div className="fixed bottom-0 left-0 right-0 z-10 flex justify-center pb-4">
-        <button
-          onClick={() => {
-            setScreenSharing(false);
-          }}
-          className="w-40 rounded-lg bg-red-400 px-5 py-3 text-center text-base font-medium text-white hover:bg-red-500 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900"
-        >
-          Dejar de compartir
-        </button>
-      </div>
-    );
   }
 
   if (!isSharingEnabled || !screenTrack) {

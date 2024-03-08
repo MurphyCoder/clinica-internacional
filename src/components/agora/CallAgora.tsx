@@ -22,6 +22,7 @@ import {
   MdOutlineVideocam,
   MdOutlineVideocamOff,
   MdOutlinePersonOff,
+  MdLogout,
 } from "react-icons/md";
 import { Container } from "../shared/Container";
 import { ShareScreenComponent } from "./SharedScreen";
@@ -33,8 +34,6 @@ function CallAgora(props: { appId: string; channelName: string }) {
   const client = useRTCClient(
     AgoraRTC.createClient({ codec: "vp8", mode: "rtc" }),
   );
-  // const devices = AgoraRTC.getDevices();
-  // console.log("devices", devices);
 
   return (
     <AgoraRTCProvider client={client}>
@@ -93,30 +92,6 @@ function Videos(props: { channelName: string; AppID: string }) {
   const isActiveRemoteAudio = remoteUsers.find(
     (user) => user.uid === selectedUidVideo,
   )?.hasAudio;
-
-  const numUsers = remoteUsers.length + 1;
-  let numCols = 1;
-  let numRows = 1;
-  switch (numUsers) {
-    case 1:
-      numCols = 1;
-      numRows = 1;
-      break;
-    case 2:
-      numCols = 2;
-      numRows = 1;
-      break;
-    case 3:
-      numCols = 3;
-      numRows = 1;
-      break;
-    case 4:
-      numCols = 2;
-      numRows = 2;
-      break;
-    default:
-      break;
-  }
 
   const toggleMuteVideo = () => {
     localCameraTrack
@@ -251,14 +226,13 @@ function Videos(props: { channelName: string; AppID: string }) {
         )}
 
         {/* Botones de control */}
-
-        <div className="flex justify-between space-x-4 pb-4">
+        <div className="flex flex-col justify-between space-x-4 space-y-3 pb-4 sm:flex-row">
           <Image
             src="/assets/logo.png"
             alt="Agora Logo"
             width={140}
             height={40}
-            className="justify-start"
+            className="hidden justify-start object-contain sm:flex"
           />
           <div className="flex flex-row items-center justify-center space-x-4">
             <button
@@ -284,12 +258,19 @@ function Videos(props: { channelName: string; AppID: string }) {
 
             <Link
               className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-red-400 text-2xl text-white hover:bg-red-500 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900"
-              href="/"
+              href="/videocall"
             >
               <MdCallEnd />
             </Link>
           </div>
-          <div className=" flex-grow-0"></div>
+          {/* Botones de control */}
+
+          <button
+            // onClick={handleLogout}
+            className="rounded-lg bg-red-500 p-4 text-sm text-white"
+          >
+            Cerrar Sesión <MdLogout className="ml-2 inline-block text-2xl" />
+          </button>
         </div>
       </Container>
     </div>
