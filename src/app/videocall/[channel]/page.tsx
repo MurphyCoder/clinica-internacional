@@ -21,7 +21,7 @@ const ChannelPage = ({ params }: { params: { channel: string } }) => {
         channelName={params.channel}
         appId={
           process.env.PUBLIC_AGORA_APP_ID?.toString() ||
-          "1234567890abcdef1234567890abcdef"
+          "8d0e6c0588194991af086560049f5bea"
         }
       />
     </div>
